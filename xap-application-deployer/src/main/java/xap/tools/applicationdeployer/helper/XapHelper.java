@@ -94,7 +94,7 @@ public class XapHelper {
 
 		long deployRequestStartTime = System.currentTimeMillis();
 		Application dataApp = gsm.deploy(applicationConfig);
-		long deployRequestEndTime = System.currentTimeMillis() + timeout.toMillis();
+		long deployRequestEndTime = System.currentTimeMillis();
 		long deployRequestDuration = deployRequestEndTime - deployRequestStartTime;
 		LOG.info("Requested deployment of application : duration = {} ms", deployRequestDuration);
 

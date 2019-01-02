@@ -5,7 +5,15 @@
 
 	<groupId>org.github</groupId>
 	<artifactId>xap-application-deployer</artifactId>
-	<version>1.0.0</version>
+	<version>1.1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.4.7.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -18,19 +26,20 @@
 		<maven.compiler.encoding>${project.build.sourceEncoding}</maven.compiler.encoding>
 
 		<!-- include in XAP distrib -->
-		<xap.version>12.3.1</xap.version>
-		<slf4j.version>1.6.6</slf4j.version>
+		<xap.version>12.3.0</xap.version>
+		<slf4j.version>1.7.25</slf4j.version>
 		<spring.version>4.3.17.RELEASE</spring.version>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>xap-application-deployer-local-repo</id>
+			<url>file://${basedir}/localRepo</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<!-- include in XAP distrib -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-
 		<dependency>
 			<groupId>com.gigaspaces</groupId>
 			<artifactId>xap-admin</artifactId>
@@ -41,8 +50,7 @@
 					<groupId>*</groupId>
 				</exclusion>
 			</exclusions>
-			<scope>system</scope>
-			<systemPath>${env.XAP_HOME}/lib/platform/service-grid/xap-admin.jar</systemPath>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.gigaspaces</groupId>
@@ -54,8 +62,7 @@
 					<groupId>*</groupId>
 				</exclusion>
 			</exclusions>
-			<scope>system</scope>
-			<systemPath>${env.XAP_HOME}/lib/required/xap-openspaces.jar</systemPath>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.gigaspaces</groupId>
@@ -67,8 +74,7 @@
 					<groupId>*</groupId>
 				</exclusion>
 			</exclusions>
-			<scope>system</scope>
-			<systemPath>${env.XAP_HOME}/lib/required/xap-datagrid.jar</systemPath>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.gigaspaces</groupId>
@@ -80,8 +86,7 @@
 					<groupId>*</groupId>
 				</exclusion>
 			</exclusions>
-			<scope>system</scope>
-			<systemPath>${env.XAP_HOME}/lib/required/xap-common.jar</systemPath>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.gigaspaces</groupId>
@@ -93,8 +98,7 @@
 					<groupId>*</groupId>
 				</exclusion>
 			</exclusions>
-			<scope>system</scope>
-			<systemPath>${env.XAP_HOME}/lib/required/xap-trove.jar</systemPath>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.gigaspaces</groupId>
@@ -106,8 +110,7 @@
 					<groupId>*</groupId>
 				</exclusion>
 			</exclusions>
-			<scope>system</scope>
-			<systemPath>${env.XAP_HOME}/lib/required/xap-asm.jar</systemPath>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.gigaspaces</groupId>
@@ -119,20 +122,38 @@
 					<groupId>*</groupId>
 				</exclusion>
 			</exclusions>
-			<scope>system</scope>
-			<systemPath>${env.XAP_HOME}/lib/platform/service-grid/xap-service-grid.jar</systemPath>
+			<scope>provided</scope>
 		</dependency>
 
+
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.logstash.log4j</groupId>
+			<artifactId>jsonevent-layout</artifactId>
+			<version>1.7</version>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
-			<version>${slf4j.version}</version>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>uk.org.lidalia</groupId>
+			<artifactId>sysout-over-slf4j</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
@@ -141,43 +162,46 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-beans</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-expression</artifactId>
-			<version>${spring.version}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-maven-plugin</artifactId>
+			<version>2.1.1.RELEASE</version>
 		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.10.19</version>
+			<scope>test</scope>
 		</dependency>
 
 	</dependencies>
@@ -190,11 +214,34 @@
 				<version>3.1.0</version>
 				<configuration>
 					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
 						<manifest>
-							<mainClass>xap.tools.applicationdeployer.Main</mainClass>
+							<addClasspath>true</addClasspath>
 						</manifest>
+						<manifestEntries>
+							<Implementation-Title>${project.artifactId}</Implementation-Title>
+							<Implementation-Version>${project.version}</Implementation-Version>
+							<Implementation-Vendor>CAPS</Implementation-Vendor>
+							<Build-Time>${maven.build.timestamp}</Build-Time>
+							<Main-Class>xap.tools.applicationdeployer.Main</Main-Class>
+						</manifestEntries>
 					</archive>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<fork>true</fork>
+					<mainClass>xap.tools.applicationdeployer.Main</mainClass>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
