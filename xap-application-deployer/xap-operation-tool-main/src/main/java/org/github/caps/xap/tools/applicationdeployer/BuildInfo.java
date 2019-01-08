@@ -15,7 +15,6 @@ public class BuildInfo {
 		try {
 			String message = "Version Info : " + findVersionInfo("mq-injector-main");
 			log.info(message);
-			System.out.println(message);
 		} catch (IOException e) {
 			log.warn("Failed to find build time in MANIFEST.MF", e);
 		}

@@ -2,8 +2,14 @@ package org.github.caps.xap.tools.applicationdeployer;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -19,7 +25,7 @@ public class ApplicationArguments {
 
 	private static final String PROP_LOOKUP_LOCATORS = "lookup.locators";
 	private static final String PROP_LOOKUP_LOCATORS_ENV = "XAP_LOOKUP_LOCATORS";
-	private static final String PROP_LOOKUP_LOCATORS_DEFAULT = System.getenv().getOrDefault(PROP_LOOKUP_LOCATORS_ENV, "");
+	private static final String PROP_LOOKUP_LOCATORS_DEFAULT = System.getenv().getOrDefault(PROP_LOOKUP_LOCATORS_ENV, "localhost");
 
 	private static final String PROP_LOG_LEVEL_ROOT = "log.level.root";
 	private static final String PROP_LOG_LEVEL_ROOT_DEFAULT = Level.INFO.getName();
@@ -53,11 +59,35 @@ public class ApplicationArguments {
 	}
 
 	public void printInfo() {
+		log.info("commandLineArgs = {}", Arrays.asList(commandLineArgs));
+
 		log.info("locators = {}", locators);
 		log.info("groups = {}", groups);
 		log.info("timeoutDuration = {}", timeoutDuration);
 		log.info("username = {}", username);
 		log.info("password = **** (hidden)");
+
+		printNetworkInfo();
+	}
+
+	public void printNetworkInfo() {
+		log.info("Inet4Address.getLoopbackAddress().getHostAddress() = {}", Inet4Address.getLoopbackAddress().getHostAddress());
+		//
+		List<String> addresses = new ArrayList<>();
+		try {
+			for (Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces(); networkInterfaces.hasMoreElements(); ) {
+				NetworkInterface networkInterface = networkInterfaces.nextElement();
+				if (networkInterface.isUp()) {
+					for (Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses(); inetAddresses.hasMoreElements(); ) {
+						InetAddress addr = inetAddresses.nextElement();
+						addresses.add(addr.getHostAddress());
+					}
+				}
+			}
+		} catch (SocketException e) {
+			throw new RuntimeException(e);
+		}
+		log.info("addresses = {}", addresses);
 	}
 
 }

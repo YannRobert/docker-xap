@@ -41,6 +41,8 @@ public class ApplicationConfigBuilder {
 			throw new IllegalArgumentException("must be a valid application File or Directory: " + applicationArchiveFileOrDirectory);
 		}
 		ApplicationConfig applicationConfig = new ApplicationFileDeployment(applicationArchiveFileOrDirectory).create();
+		log.info("applicationConfig = {}", applicationConfig);
+
 		for (ProcessingUnitConfigHolder puConfig : applicationConfig.getProcessingUnits()) {
 			if (!contextProperties.isEmpty()) {
 				puConfig.getContextProperties().putAll(contextProperties);
@@ -52,7 +54,10 @@ public class ApplicationConfigBuilder {
 			log.info("processingUnitConfig = {}", processingUnitConfig);
 		}
 
-		log.info("applicationConfig = {}", applicationConfig);
+		log.info("Created ApplicationConfig for application '{}' composed of : {}",
+				applicationConfig.getName(),
+				ApplicationConfigHelper.getPuNamesInOrderOfDeployment(applicationConfig));
+
 		return applicationConfig;
 	}
 

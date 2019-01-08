@@ -36,11 +36,11 @@
 		<appender-ref ref="FILE" />
 	</appender>
 
-	<logger name="org.springframework" level="WARN">
-	</logger>
+	<logger name="org.springframework" level="WARN"/>
 
-	<logger name="org.github.caps.xap.tools.applicationdeployer" level="INFO">
-	</logger>
+	<logger name="org.github.caps.xap.tools.applicationdeployer" level="INFO"/>
+
+	<logger name="org.openspaces.pu.container.support.ResourceApplicationContext" level="WARN"/>
 
 	<root level="INFO">
 		<appender-ref ref="ASYNC_STDOUT" />

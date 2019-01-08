@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e
-set -x
 
 umask 022
 
@@ -18,6 +17,8 @@ CLASSPATH=${SCRIPTS_DIR}/config
 #CLASSPATH=${CLASSPATH}:$(echo $LIB_DIR/*.jar | tr ' ' ':')
 CLASSPATH=${CLASSPATH}:$(find "${LIB_DIR}" -name '*.jar' | tr '\n' ':')
 
-java -Xms1G -Xmx1G -cp "${CLASSPATH}" -jar $LIB_DIR/xap-operation-tool-main-1.1.0-SNAPSHOT.jar $@
+OPERATION=undeploy
+
+time java -Xms1G -Xmx1G -cp "${CLASSPATH}" -jar $LIB_DIR/xap-operation-tool-main-1.1.0-SNAPSHOT.jar $OPERATION $@
 
 echo "Script $0 finished successfully"

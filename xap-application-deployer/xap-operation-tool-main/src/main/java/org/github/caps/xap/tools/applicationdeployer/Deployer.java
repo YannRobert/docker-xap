@@ -1,5 +1,7 @@
 package org.github.caps.xap.tools.applicationdeployer;
 
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 import org.github.caps.xap.tools.applicationdeployer.helper.ApplicationConfigBuilder;
 import org.github.caps.xap.tools.applicationdeployer.helper.UserDetailsConfigFactory;
 import org.github.caps.xap.tools.applicationdeployer.helper.XapHelper;
@@ -14,7 +16,11 @@ public class Deployer {
 
 	private final UserDetailsConfigFactory userDetailsConfigFactory = new UserDetailsConfigFactory();
 
-	public void doDeploy(String archiveFilename, ApplicationArguments applicationArguments) throws TimeoutException {
+	public void doDeploy(
+			String archiveFilename,
+			boolean wholeMode,
+			boolean restartEmptyContainers,
+			ApplicationArguments applicationArguments) throws TimeoutException {
 		UserDetailsConfig userDetails = userDetailsConfigFactory.createFromUrlEncodedValue(
 				applicationArguments.username,
 				applicationArguments.password
@@ -22,7 +28,7 @@ public class Deployer {
 
 		XapHelper xapHelper = new XapHelper.Builder()
 				.locators(applicationArguments.locators)
-				.groups(applicationArguments.groups)
+				//.groups(applicationArguments.groups)
 				.timeout(applicationArguments.timeoutDuration)
 				.userDetails(userDetails)
 				.create();
@@ -39,11 +45,36 @@ public class Deployer {
 
 		ApplicationConfig applicationConfig = appDeployBuilder.create();
 
+		if (archiveFileOrDirectory.isFile()) {
+			File outputDirectory = new File(".");
+			unzip(archiveFileOrDirectory, outputDirectory);
+		}
+
 		xapHelper.printReportOnContainersAndProcessingUnits();
-		xapHelper.undeployIfExists(applicationConfig.getName());
-		xapHelper.printReportOnContainersAndProcessingUnits();
-		xapHelper.restartEmptyContainers();
-		xapHelper.deploy(applicationConfig);
+
+		if (wholeMode) {
+			xapHelper.undeployIfExists(applicationConfig.getName());
+			xapHelper.printReportOnContainersAndProcessingUnits();
+		}
+
+		if (restartEmptyContainers) {
+			xapHelper.restartEmptyContainers();
+		}
+
+		if (wholeMode) {
+			xapHelper.deployWhole(applicationConfig, applicationArguments.timeoutDuration);
+		} else {
+			xapHelper.deployProcessingUnits(applicationConfig, applicationArguments.timeoutDuration, restartEmptyContainers);
+		}
+	}
+
+	public static void unzip(File archiveFile, File destinationDirectory) {
+		try {
+			ZipFile zipFile = new ZipFile(archiveFile);
+			zipFile.extractAll(destinationDirectory.getPath());
+		} catch (ZipException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }
